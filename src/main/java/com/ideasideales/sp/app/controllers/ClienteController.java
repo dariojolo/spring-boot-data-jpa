@@ -1,5 +1,6 @@
 package com.ideasideales.sp.app.controllers;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -52,11 +54,23 @@ public class ClienteController {
 		model.put("titulo", "Formulario de cliente");
    		return "form";
    	}
+   	@GetMapping("/form/{id}")
+	public String editar(@PathVariable(value="id") Long id, Map<String, Object> model) {
+   		Cliente cliente = null;
+   		if (id > 0) {
+   		 	cliente = clienteDao.findOne(id);
+   		}else {
+   			return "redirect:/clientes/listar";
+   		}
+   		model.put("cliente",cliente);
+		model.put("titulo", "Editar cliente");
+   		return "form";
+   	}
    	@PostMapping("/form")
-	public String guardar(@Valid Cliente cliente, BindingResult result) {
-   		
+	public String guardar(@Valid Cliente cliente, BindingResult result, Model model) {
+   		model.addAttribute("titulo", "Formulario de cliente");
    		if (result.hasErrors()){
-   			return "redirect:/clientes/form";
+   			return "form";
    		}
    		clienteDao.save(cliente);
    		return "redirect:/clientes/listar";
